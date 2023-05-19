@@ -10,22 +10,10 @@ namespace OilWellsWebApiTask.Controllers
 	{
 		private readonly IOilWellsService _oilWellsService;
 
-		public OilWellsController(IOilWellsService oilWellsService) 
+		public OilWellsController(IOilWellsService oilWellsService)
 		{
 			_oilWellsService = oilWellsService;
 		}
-
-		//[HttpGet]
-		//public async Task<ActionResult<List<DrillBlock>>> GetAllHeroes()
-		//{
-		//	return await _oilWellsService.GetAllDrillBlocksAsync();
-		//}
-
-		//[HttpPost]
-		//public async Task AddDrillBlock(DrillBlock drillBlock)
-		//{
-		//	await _oilWellsService.AddDrillBlockAsync(drillBlock);
-		//}
 
 		[HttpGet]
 		public async Task<JsonResult> GetAllDrillBlocks()
@@ -33,16 +21,36 @@ namespace OilWellsWebApiTask.Controllers
 			return new JsonResult(await _oilWellsService.GetAllDrillBlocksAsync());
 		}
 
-		[HttpPost]
-		public async Task AddDrillBlock(DrillBlock drillBlock)
+		[HttpGet("{id}", Name = "SingleDrillBlock")]
+		public async Task<JsonResult> GetSingleDrillBlock(int id)
 		{
-			await _oilWellsService.AddDrillBlockAsync(drillBlock);
+			DrillBlock drillBlock = await _oilWellsService.GetSingeDrillBlockAsync(id);
+
+			return new JsonResult(drillBlock);
+		}
+
+		[HttpPost]
+		public async Task<JsonResult> AddDrillBlock(DrillBlock drillBlock)
+		{
+			List<DrillBlock> list = await _oilWellsService.AddDrillBlockAsync(drillBlock);
+
+			return new JsonResult(list);
 		}
 
 		[HttpDelete("{id}")]
-		public async Task DeleteDrillBlock(int id)
+		public async Task<JsonResult> DeleteDrillBlock(int id)
 		{
+			List<DrillBlock> list = await _oilWellsService.DeleteDrillBlockAsync(id);
+
+			return new JsonResult(list);
 		}
 
+		[HttpPut("{id}")]
+		public async Task<JsonResult> UpdateDrillBlock(int id, DrillBlock drillBlock)
+		{
+			List<DrillBlock> list = await _oilWellsService.UpdateDrillBlockAsync(id, drillBlock);
+
+			return new JsonResult(list);
+		}
 	}
 }
