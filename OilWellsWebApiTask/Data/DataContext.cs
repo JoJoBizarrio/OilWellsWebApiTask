@@ -9,5 +9,13 @@ namespace OilWellsWebApiTask.Data
 		public DbSet<DrillBlockPoints> DrillBlockPoints { get; set; }
 		public DbSet<Hole> Holes { get; set; }
 		public DbSet<HolePoints> HolePoints { get; set; }
+
+		protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+		{
+		}
+
+		public DataContext(DbContextOptions<DataContext> options) : base(options)
+		{
+		}
 	}
 }
