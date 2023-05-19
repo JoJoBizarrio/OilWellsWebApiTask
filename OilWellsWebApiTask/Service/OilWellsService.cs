@@ -25,6 +25,7 @@ namespace OilWellsWebApiTask.Service
 
 		public async Task<List<DrillBlock>> AddDrillBlockAsync(DrillBlock drillBlock)
 		{
+			drillBlock.LastUpdateDate = DateTime.UtcNow;
 			await _dataContext.DrillBlocks.AddAsync(drillBlock);
 			await _dataContext.SaveChangesAsync();
 
@@ -64,19 +65,75 @@ namespace OilWellsWebApiTask.Service
 			return await _dataContext.DrillBlocks.ToListAsync();
 		}
 
-		//public async Task<List<DrillBlockPoints>> GetAllDrillBlockPointsAsync()
-		//{
-		//	return await _dataContext.DrillBlockPoints.ToListAsync();
-		//}
+		public async Task<List<DrillBlockPoint>> GetAllDrillBlockPointsAsync()
+		{
+			return await _dataContext.DrillBlockPoints.ToListAsync();
+		}
 
-		//public async Task<List<Hole>> GetAllHolesAsync()
-		//{
-		//	return await _dataContext.Holes.ToListAsync();
-		//}
+		public async Task<List<DrillBlockPoint>> GetDrillBlockPointsByDrillBlockAsync(int idDrillBlock)
+		{
+			DrillBlock drillBlock = await _dataContext.DrillBlocks.FindAsync(idDrillBlock);
 
-		//public async Task<List<HolePoints>> GetAllHolePointsAsync()
-		//{
-		//	return await _dataContext.HolePoints.ToListAsync();
-		//}
+			if (drillBlock == null)
+			{
+				return null;
+			}
+
+			return drillBlock.DrillBlockPoints;
+		}
+
+		public async Task<List<DrillBlockPoint>> AddDrillBlockPointAsync(DrillBlockPoint drillBlockPoints)
+		{
+			DrillBlock drillBlock = await _dataContext.DrillBlocks.FindAsync(drillBlockPoints.DrillBlockId);
+
+			if (drillBlock == null || drillBlock.DrillBlockPoints.Any(dbp => dbp.Sequence == drillBlockPoints.Sequence))
+			{
+				return null;
+			}
+
+			drillBlock.DrillBlockPoints.Add(drillBlockPoints);
+
+			await _dataContext.SaveChangesAsync();
+
+			return await _dataContext.DrillBlockPoints.ToListAsync();
+		}
+
+		public async Task<List<DrillBlockPoint>> DeleteDrillBlockPointAsync(int id)
+		{
+			DrillBlockPoint removedDrillBlockPoints = await _dataContext.DrillBlockPoints.FindAsync(id);
+
+			if (removedDrillBlockPoints == null)
+			{
+				return null;
+			}
+
+			_dataContext.DrillBlockPoints.Remove(removedDrillBlockPoints);
+
+			await _dataContext.SaveChangesAsync();
+
+			return await _dataContext.DrillBlockPoints.ToListAsync();
+		}
+
+		public async Task<List<DrillBlockPoint>> UpdateDrillBlockPointAsync(int id, DrillBlockPoint request)
+		{
+			DrillBlockPoint updatedDrillBlockPoints = await _dataContext.DrillBlockPoints.FindAsync(id);
+
+			if (updatedDrillBlockPoints == null 
+				|| updatedDrillBlockPoints.DrillBlock.DrillBlockPoints.Any(dbp => dbp.Sequence == request.Sequence)) // где нужно проводить валидацию данных?
+			{
+				return null;
+			}
+
+			updatedDrillBlockPoints.X = request.X;
+			updatedDrillBlockPoints.Y = request.Y;
+			updatedDrillBlockPoints.Z = request.Z;
+			updatedDrillBlockPoints.Sequence = request.Sequence;
+
+			await _dataContext.SaveChangesAsync();
+
+			return await _dataContext.DrillBlockPoints.ToListAsync();
+		}
+
+
 	}
 }
