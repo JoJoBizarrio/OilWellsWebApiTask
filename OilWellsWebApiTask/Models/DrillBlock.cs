@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace OilWellsWebApiTask.Models
+﻿namespace OilWellsWebApiTask.Models
 {
 	public class DrillBlock
 	{
