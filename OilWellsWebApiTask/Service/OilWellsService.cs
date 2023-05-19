@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Models;
 
@@ -118,7 +119,7 @@ namespace OilWellsWebApiTask.Service
 		{
 			DrillBlockPoint updatedDrillBlockPoints = await _dataContext.DrillBlockPoints.FindAsync(id);
 
-			if (updatedDrillBlockPoints == null 
+			if (updatedDrillBlockPoints == null
 				|| updatedDrillBlockPoints.DrillBlock.DrillBlockPoints.Any(dbp => dbp.Sequence == request.Sequence)) // где нужно проводить валидацию данных?
 			{
 				return null;
@@ -134,6 +135,70 @@ namespace OilWellsWebApiTask.Service
 			return await _dataContext.DrillBlockPoints.ToListAsync();
 		}
 
+		public async Task<List<Hole>> GetAllHolesAsync()
+		{
+			return await _dataContext.Holes.ToListAsync();
+		}
 
+		public async Task<List<Hole>> GetHolesByDrillBlockAsync(int idDrillBlock)
+		{
+			DrillBlock drillBlock = await _dataContext.DrillBlocks.FindAsync(idDrillBlock);
+
+			if (drillBlock == null)
+			{
+				return null;
+			}
+
+			return drillBlock.Holes;
+		}
+
+		public async Task<List<Hole>> AddHoleAsync(Hole hole)
+		{
+			DrillBlock drillBlock = await _dataContext.DrillBlocks.FindAsync(hole.DrillBlockId);
+
+			if (drillBlock == null)
+			{
+				return null;
+			}
+
+			drillBlock.Holes.Add(hole);
+
+			await _dataContext.SaveChangesAsync();
+
+			return await _dataContext.Holes.ToListAsync();
+		}
+
+		public async Task<List<Hole>> DeleteHoleAsync(int id)
+		{
+			Hole removedHole = await _dataContext.Holes.FindAsync(id);
+
+			if (removedHole == null)
+			{
+				return null;
+			}
+
+			_dataContext.Holes.Remove(removedHole);
+
+			await _dataContext.SaveChangesAsync();
+
+			return await _dataContext.Holes.ToListAsync();
+		}
+
+		public async Task<List<Hole>> UpdateHoleAsync(int id, Hole request)
+		{
+			Hole updatedHole = await _dataContext.Holes.FindAsync(id);
+
+			if (updatedHole == null)
+			{
+				return null;
+			}
+
+			updatedHole.Name = request.Name;
+			updatedHole.Depth = request.Depth;
+
+			await _dataContext.SaveChangesAsync();
+
+			return await _dataContext.Holes.ToListAsync();
+		}
 	}
 }
