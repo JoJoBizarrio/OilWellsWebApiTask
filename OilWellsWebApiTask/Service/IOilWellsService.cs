@@ -15,5 +15,11 @@ namespace OilWellsWebApiTask.Service
 		Task<List<DrillBlockPoint>> AddDrillBlockPointAsync(DrillBlockPoint drillBlockPoints);
 		Task<List<DrillBlockPoint>> DeleteDrillBlockPointAsync(int id);
 		Task<List<DrillBlockPoint>> UpdateDrillBlockPointAsync(int id, DrillBlockPoint request);
+
+		Task<List<Hole>> GetAllHolesAsync();
+		Task<List<Hole>> GetHolesByDrillBlockAsync(int idDrillBlock);
+		Task<List<Hole>> AddHoleAsync(Hole hole);
+		Task<List<Hole>> DeleteHoleAsync(int id);
+		Task<List<Hole>> UpdateHoleAsync(int id, Hole request);
 	}
 }

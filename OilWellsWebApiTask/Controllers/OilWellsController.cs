@@ -92,5 +92,36 @@ namespace OilWellsWebApiTask.Controllers
 
 			return new JsonResult(list);
 		}
+
+		[HttpGet("Holes/All")]
+		public async Task<JsonResult> GetAllHolesAsync()
+		{
+			return new JsonResult(await _oilWellsService.GetAllHolesAsync());
+		}
+
+		[HttpGet("Holes/{idDrillBlock}")]
+		public async Task<JsonResult> GetHolesByDrillBlockAsync(int idDrillBlock)
+		{
+			return new JsonResult(await _oilWellsService.GetHolesByDrillBlockAsync(idDrillBlock));
+		}
+
+		[HttpPost("Holes/New")]
+		public async Task<JsonResult> AddHoleAsync(Hole hole)
+		{
+			return new JsonResult(await _oilWellsService.AddHoleAsync(hole));
+		}
+
+
+		[HttpDelete("Holes/Delete/{id}")]
+		public async Task<JsonResult> DeleteHoleAsync(int id)
+		{
+			return new JsonResult(await _oilWellsService.DeleteHoleAsync(id));
+		}
+
+		[HttpPut("Holes/Update/{id}")]
+		public async Task<JsonResult> UpdateHoleAsync(int id, Hole request)
+		{
+			return new JsonResult(await _oilWellsService.UpdateHoleAsync(id, request));
+		}
 	}
 }
