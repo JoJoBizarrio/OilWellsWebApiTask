@@ -14,11 +14,11 @@ namespace OilWellsWebApiTask.Models
 		[JsonIgnore]
 		public DrillBlock DrillBlock { get; set; }
 		[JsonIgnore]
-		public virtual List<HolePoints> HolePoints { get; set; }
+		public virtual List<HolePoint> HolePoints { get; set; }
 
 		public Hole()
 		{
-			HolePoints = new List<HolePoints>();
+			HolePoints = new List<HolePoint>();
 		}
 	}
 }

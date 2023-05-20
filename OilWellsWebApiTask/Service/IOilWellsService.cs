@@ -21,5 +21,10 @@ namespace OilWellsWebApiTask.Service
 		Task<List<Hole>> AddHoleAsync(Hole hole);
 		Task<List<Hole>> DeleteHoleAsync(int id);
 		Task<List<Hole>> UpdateHoleAsync(int id, Hole request);
+
+		Task<List<HolePoint>> GetAllHolePointsAsync();
+		Task<List<HolePoint>> AddHolePointAsync(HolePoint holePoint);
+		Task<List<HolePoint>> DeleteHolePointAsync(int id);
+		Task<List<HolePoint>> UpdateHolePointAsync(int id, HolePoint request);
 	}
 }

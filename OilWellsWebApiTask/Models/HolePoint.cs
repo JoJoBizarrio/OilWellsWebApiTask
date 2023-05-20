@@ -2,7 +2,7 @@
 
 namespace OilWellsWebApiTask.Models
 {
-	public class HolePoints
+	public class HolePoint
 	{
 		[JsonIgnore]
 		public int Id { get; set; }
@@ -16,6 +16,6 @@ namespace OilWellsWebApiTask.Models
 		[JsonIgnore]
 		public Hole Hole { get; set; }
 
-		public HolePoints() { }
+		public HolePoint() { }
 	}
 }
