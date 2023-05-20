@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OilWellsWebApiTask.Models;
 using OilWellsWebApiTask.Service;
-using System.Collections.Generic;
 
 namespace OilWellsWebApiTask.Controllers
 {
