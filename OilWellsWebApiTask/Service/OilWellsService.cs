@@ -5,7 +5,7 @@ using OilWellsWebApiTask.Models;
 
 namespace OilWellsWebApiTask.Service
 {
-	public class OilWellsService : IOilWellsService
+	public class OilWellsService : IOilWellsService // нужо ли разделить этот класс на несколько?
 	{
 		private readonly DataContext _dataContext;
 
@@ -93,6 +93,7 @@ namespace OilWellsWebApiTask.Service
 			}
 
 			drillBlock.DrillBlockPoints.Add(drillBlockPoints);
+			drillBlock.LastUpdateDate = DateTime.UtcNow;
 
 			await _dataContext.SaveChangesAsync();
 
@@ -109,6 +110,7 @@ namespace OilWellsWebApiTask.Service
 			}
 
 			_dataContext.DrillBlockPoints.Remove(removedDrillBlockPoints);
+			removedDrillBlockPoints.DrillBlock.LastUpdateDate = DateTime.UtcNow;
 
 			await _dataContext.SaveChangesAsync();
 
@@ -129,6 +131,7 @@ namespace OilWellsWebApiTask.Service
 			updatedDrillBlockPoints.Y = request.Y;
 			updatedDrillBlockPoints.Z = request.Z;
 			updatedDrillBlockPoints.Sequence = request.Sequence;
+			updatedDrillBlockPoints.DrillBlock.LastUpdateDate = DateTime.UtcNow;
 
 			await _dataContext.SaveChangesAsync();
 
@@ -162,6 +165,7 @@ namespace OilWellsWebApiTask.Service
 			}
 
 			drillBlock.Holes.Add(hole);
+			drillBlock.LastUpdateDate = DateTime.UtcNow;
 
 			await _dataContext.SaveChangesAsync();
 
@@ -178,6 +182,7 @@ namespace OilWellsWebApiTask.Service
 			}
 
 			_dataContext.Holes.Remove(removedHole);
+			removedHole.DrillBlock.LastUpdateDate = DateTime.UtcNow;
 
 			await _dataContext.SaveChangesAsync();
 
@@ -195,10 +200,70 @@ namespace OilWellsWebApiTask.Service
 
 			updatedHole.Name = request.Name;
 			updatedHole.Depth = request.Depth;
+			updatedHole.DrillBlock.LastUpdateDate = DateTime.UtcNow;
 
 			await _dataContext.SaveChangesAsync();
 
 			return await _dataContext.Holes.ToListAsync();
+		}
+
+		public async Task<List<HolePoint>> GetAllHolePointsAsync()
+		{
+			return await _dataContext.HolePoints.ToListAsync();
+		}
+
+		public async Task<List<HolePoint>> AddHolePointAsync(HolePoint holePoint)
+		{
+			Hole hole = await _dataContext.Holes.FindAsync(holePoint.HoleId);
+
+			if (hole == null)
+			{
+				return null;
+			}
+
+			hole.HolePoints.Add(holePoint);
+			DrillBlock drillBlock = await _dataContext.DrillBlocks.FindAsync(hole.DrillBlockId);
+			drillBlock.LastUpdateDate = DateTime.UtcNow;
+
+			await _dataContext.SaveChangesAsync();
+
+			return await _dataContext.HolePoints.ToListAsync();
+		}
+
+		public async Task<List<HolePoint>> DeleteHolePointAsync(int id)
+		{
+			HolePoint removedHolePoint = await _dataContext.HolePoints.FindAsync(id);
+
+			if (removedHolePoint == null)
+			{
+				return null;
+			}
+
+			_dataContext.HolePoints.Remove(removedHolePoint);
+			removedHolePoint.Hole.DrillBlock.LastUpdateDate = DateTime.UtcNow;
+
+			await _dataContext.SaveChangesAsync();
+
+			return await _dataContext.HolePoints.ToListAsync();
+		}
+
+		public async Task<List<HolePoint>> UpdateHolePointAsync(int id, HolePoint request)
+		{
+			HolePoint updatedHolePoint = await _dataContext.HolePoints.FindAsync(id);
+
+			if (updatedHolePoint == null)
+			{
+				return null;
+			}
+
+			updatedHolePoint.X = request.X;
+			updatedHolePoint.Y = request.Y;
+			updatedHolePoint.Z = request.Z;
+			updatedHolePoint.Hole.DrillBlock.LastUpdateDate = DateTime.UtcNow;
+
+			await _dataContext.SaveChangesAsync();
+
+			return await _dataContext.HolePoints.ToListAsync();
 		}
 	}
 }
