@@ -5,8 +5,7 @@ namespace OilWellsWebApiTask.Models
 {
 	public class DrillBlockPoint
 	{
-		[JsonIgnore]
-		public int Id { get; set; }
+		public int Id { get; private set; }
 
 		public int Sequence { get; set; }
 		public int X { get; set; }
@@ -16,9 +15,7 @@ namespace OilWellsWebApiTask.Models
 		[Required]
 		[Range(1, int.MaxValue)]
 		public int DrillBlockId { get; set; }
-
-		[JsonIgnore]
-		public DrillBlock DrillBlock { get; set; }
+		public DrillBlock DrillBlock { get; private set; }
 
 		public DrillBlockPoint()
 		{
