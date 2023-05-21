@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Service;
 
@@ -16,7 +17,8 @@ namespace OilWellsWebApiTask
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
 			builder.Services.AddScoped<IOilWellsService, OilWellsService>();
-			builder.Services.AddDbContext<DataContext>();
+			builder.Services.AddDbContext<DataContext>(options =>
+				options.UseNpgsql(builder.Configuration.GetConnectionString("OilWellsWebApiTask")));
 
 			var app = builder.Build();
 
