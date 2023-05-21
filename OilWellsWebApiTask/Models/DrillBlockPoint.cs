@@ -3,23 +3,23 @@ using System.Text.Json.Serialization;
 
 namespace OilWellsWebApiTask.Models
 {
-	public class Hole
+	public class DrillBlockPoint
 	{
 		public int Id { get; private set; }
 
-		public string Name { get; set; }
-		public int Depth { get; set; }
+		public int Sequence { get; set; }
+		public int X { get; set; }
+		public int Y { get; set; }
+		public int Z { get; set; }
 
 		[Required]
 		[Range(1, int.MaxValue)]
 		public int DrillBlockId { get; set; }
-
 		public DrillBlock DrillBlock { get; private set; }
-		public virtual List<HolePoint> HolePoints { get; private set; }
 
-		public Hole()
+		public DrillBlockPoint()
 		{
-			HolePoints = new List<HolePoint>();
+			DrillBlock = new DrillBlock();
 		}
 	}
 }
