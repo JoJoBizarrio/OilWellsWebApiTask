@@ -8,18 +8,20 @@ namespace OilWellsWebApiTask.Repository
 		internal readonly DataContext _dataContext;
 		internal DbSet<T> DbSet;
 
+		private bool disposed = false;
+
 		public Repository(DataContext dataContext)
 		{
 			_dataContext = dataContext;
 			DbSet = _dataContext.Set<T>();
 		}
 
-		public async Task<IEnumerable<T>> GetAllAsync() // точно енмурэйбл? надо будет это проверить и перечитать 
+		public async Task<List<T>> GetAllAsync()
 		{
 			return await DbSet.ToListAsync();
 		}
 
-		public async Task<T> GetSingleByIdAsync(int id)
+		public async Task<T> GetByIdAsync(int id)
 		{
 			return await DbSet.FindAsync(id);
 		}
@@ -45,6 +47,23 @@ namespace OilWellsWebApiTask.Repository
 			await _dataContext.SaveChangesAsync();
 		}
 
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
 
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposed)
+			{
+				if (disposing)
+				{
+					_dataContext.Dispose();
+				}
+
+				disposed = true;
+			}
+		}
 	}
 }
