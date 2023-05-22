@@ -22,8 +22,12 @@ namespace OilWellsWebApiTask
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
-			//builder.Services.AddScoped<IOilWellsService, OilWellsService>();
+
 			builder.Services.AddScoped<IDrillBlockService, DrillBlockService>();
+			builder.Services.AddScoped<IDrillBlockPointService, DrillBlockPointService>();
+			builder.Services.AddScoped<IHoleService, HoleService>();
+			builder.Services.AddScoped<IHolePointService,  HolePointService>();
+
 			builder.Services.AddDbContext<DataContext>(options =>
 				options.UseNpgsql(builder.Configuration.GetConnectionString("OilWellsWebApiTask")));
 

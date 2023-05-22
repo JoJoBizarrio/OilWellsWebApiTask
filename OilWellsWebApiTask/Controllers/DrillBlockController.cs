@@ -4,7 +4,8 @@ using OilWellsWebApiTask.Service.Abstract;
 
 namespace OilWellsWebApiTask.Controllers
 {
-    [ApiController]
+	[ApiController]
+	[Route("DrillBlocks")]
 	public class DrillBlockController : Controller
 	{
 		private readonly IDrillBlockService _drillBlockService;
@@ -14,28 +15,28 @@ namespace OilWellsWebApiTask.Controllers
 			_drillBlockService = drillBlockService;
 		}
 
-		[HttpGet("DrillBlocks/All")]
+		[HttpGet("All")]
 		public async Task<JsonResult> GetAll()
 		{
 			return new JsonResult(await _drillBlockService.GetAllAsync());
 		}
 
-		[HttpPost("DrillBlocks/Add")]
+		[HttpPost("Add")]
 		public async Task AddAsync(DrillBlock drillBlock)
 		{
 			await _drillBlockService.AddAsync(drillBlock);
 		}
 
-		[HttpDelete("DrillBlock/Delete/{id:int}")]
+		[HttpDelete("Delete/{id:int}")]
 		public async Task DeleteDrillBlock(int id)
 		{
 			await _drillBlockService.DeleteAsync(id);
 		}
 
-		[HttpPut("DrillBlock/Update/{id:int}")]
+		[HttpPut("Update")]
 		public async Task UpdateDrillBlock(DrillBlock drillBlock)
 		{
-			 await _drillBlockService.UpdateAsync(drillBlock);
+			await _drillBlockService.UpdateAsync(drillBlock);
 		}
 	}
 }
