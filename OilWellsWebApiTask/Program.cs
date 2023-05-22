@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Service;
+using OilWellsWebApiTask.Service.Abstract;
 using System.Text.Json.Serialization;
 
 namespace OilWellsWebApiTask
 {
-	public class Program
+    public class Program
 	{
 		public static void Main(string[] args)
 		{
@@ -21,7 +22,8 @@ namespace OilWellsWebApiTask
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
-			builder.Services.AddScoped<IOilWellsService, OilWellsService>();
+			//builder.Services.AddScoped<IOilWellsService, OilWellsService>();
+			builder.Services.AddScoped<IDrillBlockService, DrillBlockService>();
 			builder.Services.AddDbContext<DataContext>(options =>
 				options.UseNpgsql(builder.Configuration.GetConnectionString("OilWellsWebApiTask")));
 
@@ -35,7 +37,6 @@ namespace OilWellsWebApiTask
 			}
 
 			app.UseAuthorization();
-
 
 			app.MapControllers();
 
