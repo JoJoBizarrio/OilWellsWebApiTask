@@ -39,7 +39,8 @@ namespace OilWellsWebApiTask.Repository
 
 		public void Update(T entity)
 		{
-			DbSet.Update(entity);
+			//DbSet.Update(entity);
+			DbSet.Entry(entity).State = EntityState.Modified;
 		}
 
 		public async Task SaveAsync()

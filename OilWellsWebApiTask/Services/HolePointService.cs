@@ -44,6 +44,7 @@ namespace OilWellsWebApiTask.Service
 			{
 				dtoList.Add(new GetHolePointDto()
 				{
+					Id = item.Id,
 					X = item.X,
 					Y = item.Y,
 					Z = item.Z,
