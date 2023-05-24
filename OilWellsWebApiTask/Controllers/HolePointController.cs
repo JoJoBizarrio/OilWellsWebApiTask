@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OilWellsWebApiTask.Models.Dtos;
+using OilWellsWebApiTask.Service;
 using OilWellsWebApiTask.Service.Abstract;
 
 namespace OilWellsWebApiTask.Controllers
@@ -18,25 +19,39 @@ namespace OilWellsWebApiTask.Controllers
 		[HttpGet("All")]
 		public async Task<JsonResult> GetAllAsync()
 		{
-			return new JsonResult(await _holePointService.GetAllAsync());
+			return Json(Ok(await _holePointService.GetAllAsync()));
 		}
 
 		[HttpPost("Add")]
-		public async Task AddAsync(AddHolePointDto dto)
+		public async Task<JsonResult> AddAsync(AddHolePointDto dto)
 		{
-			await _holePointService.AddAsync(dto);
+			return Json(Ok(await _holePointService.AddAsync(dto)));
 		}
 
 		[HttpDelete("Delete/{id:int}")]
-		public async Task DeleteAsync(int id)
+		public async Task<JsonResult> DeleteAsync(int id)
 		{
-			await _holePointService.DeleteAsync(id);
+			var response = await _holePointService.DeleteAsync(id);
+
+			if (response.Data == null)
+			{
+				return Json(NotFound(response));
+			}
+
+			return Json(Ok(response));
 		}
 
 		[HttpPut("Update")]
-		public async Task UpdateAsync(UpdateHolePointDto dto)
+		public async Task<JsonResult> UpdateAsync(UpdateHolePointDto dto)
 		{
-			await _holePointService.UpdateAsync(dto);
+			var response = await _holePointService.UpdateAsync(dto);
+
+			if (response.Data == null)
+			{
+				return Json(NotFound(response));
+			}
+
+			return Json(Ok(response));
 		}
 	}
 }

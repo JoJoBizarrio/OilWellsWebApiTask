@@ -30,7 +30,14 @@ namespace OilWellsWebApiTask.Controllers
 		[HttpDelete("Delete/{id:int}")]
 		public async Task<JsonResult> DeleteAsync(int id)
 		{
-			return Json(Ok(await _drillBlockService.DeleteAsync(id)));
+			var response = await _drillBlockService.DeleteAsync(id);
+
+			if (response.Data == null)
+			{
+				return Json(NotFound(response));
+			}
+
+			return Json(Ok(response));
 		}
 
 		[HttpPut("Update")]

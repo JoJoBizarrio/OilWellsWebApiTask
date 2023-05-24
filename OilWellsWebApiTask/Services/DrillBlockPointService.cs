@@ -1,4 +1,5 @@
-﻿using OilWellsWebApiTask.Data;
+﻿using AutoMapper;
+using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Models;
 using OilWellsWebApiTask.Models.Dtos;
 using OilWellsWebApiTask.Repository;
@@ -9,68 +10,91 @@ namespace OilWellsWebApiTask.Service
 	public class DrillBlockPointService : IDrillBlockPointService
 	{
 		private readonly IRepository<DrillBlockPoint> _drillBlockPoints;
+		private readonly IMapper _mapper;
 
-		public DrillBlockPointService(DataContext dataContext)
+		public DrillBlockPointService(DataContext dataContext, IMapper mapper)
 		{
 			_drillBlockPoints = new Repository<DrillBlockPoint>(dataContext);
+			_mapper = mapper;
 		}
 
-		public async Task<List<GetDrillBlockPointDto>> GetAllAsync()
+		public async Task<ResponseService<List<GetDrillBlockPointDto>>> GetAllAsync()
 		{
-			var list = await _drillBlockPoints.GetAllAsync();
-			var dtoList = new List<GetDrillBlockPointDto>();
+			var response = new ResponseService<List<GetDrillBlockPointDto>>();
 
-			foreach (var item in list)
+			var list = await _drillBlockPoints.GetAllAsync();
+			response.Data = _mapper.Map<List<GetDrillBlockPointDto>>(list);
+
+			return response;
+		}
+
+		public async Task<ResponseService<List<GetDrillBlockPointDto>>> AddAsync(AddDrillBlockPointDto dto)
+		{
+			var addedItem = _mapper.Map<DrillBlockPoint>(dto);
+
+			await _drillBlockPoints.AddAsync(addedItem);
+			await _drillBlockPoints.SaveAsync();
+
+			var response = new ResponseService<List<GetDrillBlockPointDto>>();
+			var list = await _drillBlockPoints.GetAllAsync();
+			response.Data = _mapper.Map<List<GetDrillBlockPointDto>>(list);
+
+			return response;
+		}
+
+		public async Task<ResponseService<List<GetDrillBlockPointDto>>> DeleteAsync(int id)
+		{
+			var response = new ResponseService<List<GetDrillBlockPointDto>>();
+
+			try
 			{
-				dtoList.Add(new GetDrillBlockPointDto()
+				var deletedItem = await _drillBlockPoints.GetByIdAsync(id);
+
+				if (deletedItem == null)
 				{
-					Id = item.Id,
-					Sequence = item.Sequence,
-					X = item.X,
-					Y = item.Y,
-					Z = item.Z,
-					DrillBlockId = item.DrillBlockId
-				});
+					throw new Exception($"Item with id = {id} not found.");
+				}
+
+				await _drillBlockPoints.DeleteAsync(id);
+				await _drillBlockPoints.SaveAsync();
+
+				var list = await _drillBlockPoints.GetAllAsync();
+				response.Data = _mapper.Map<List<GetDrillBlockPointDto>>(list);
+			}
+			catch (Exception ex)
+			{
+				response.Success = false;
+				response.Message = ex.Message;
 			}
 
-			return dtoList;
+			return response;
 		}
 
-		public async Task AddAsync(AddDrillBlockPointDto dto)
+		public async Task<ResponseService<GetDrillBlockPointDto>> UpdateAsync(UpdateDrillBlockPointDto dto)
 		{
-			var drillBlockPoint = new DrillBlockPoint()
+			var response = new ResponseService<GetDrillBlockPointDto>();
+
+			try
 			{
-				Sequence = dto.Sequence,
-				X = dto.X,
-				Y = dto.Y,
-				Z = dto.Z,
-				DrillBlockId = dto.DrillBlockId
-			};
+				var updatedItem = await _drillBlockPoints.GetByIdAsync(dto.Id);
 
-			await _drillBlockPoints.AddAsync(drillBlockPoint);
-			await _drillBlockPoints.SaveAsync();
-		}
+				if (updatedItem == null)
+				{
+					throw new Exception($"Item with id = {dto.Id} not found.");
+				}
 
-		public async Task DeleteAsync(int id)
-		{
-			await _drillBlockPoints.DeleteAsync(id);
-			await _drillBlockPoints.SaveAsync();
-		}
+				_mapper.Map(dto, updatedItem);
 
-		public async Task UpdateAsync(UpdateDrillBlockPointDto dto)
-		{
-			var drillBlockPoint = new DrillBlockPoint()
+				_drillBlockPoints.Update(updatedItem);
+				await _drillBlockPoints.SaveAsync();
+			}
+			catch (Exception ex)
 			{
-				Id = dto.Id,
-				Sequence = dto.Sequence,
-				X = dto.X,
-				Y = dto.Y,
-				Z = dto.Z,
-				DrillBlockId = dto.DrillBlockId
-			};
+				response.Success = false;
+				response.Message = ex.Message;
+			}
 
-			_drillBlockPoints.Update(drillBlockPoint);
-			await _drillBlockPoints.SaveAsync();
+			return response;
 		}
 	}
 }

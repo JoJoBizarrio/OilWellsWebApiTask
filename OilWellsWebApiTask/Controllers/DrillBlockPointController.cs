@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OilWellsWebApiTask.Models.Dtos;
+using OilWellsWebApiTask.Service;
 using OilWellsWebApiTask.Service.Abstract;
 
 namespace OilWellsWebApiTask.Controllers
@@ -18,25 +19,39 @@ namespace OilWellsWebApiTask.Controllers
 		[HttpGet("All")]
 		public async Task<JsonResult> GetAllAsync()
 		{
-			return new JsonResult(await _drillBlockPointService.GetAllAsync());
+			return Json(Ok(await _drillBlockPointService.GetAllAsync()));
 		}
 
 		[HttpPost("Add")]
-		public async Task AddAsync(AddDrillBlockPointDto dto)
+		public async Task<JsonResult> AddAsync(AddDrillBlockPointDto dto)
 		{
-			await _drillBlockPointService.AddAsync(dto);
+			return Json(Ok(await _drillBlockPointService.AddAsync(dto)));
 		}
 
 		[HttpDelete("Delete/{id:int}")]
-		public async Task DeleteAsync(int id)
+		public async Task<JsonResult> DeleteAsync(int id)
 		{
-			await _drillBlockPointService.DeleteAsync(id);
+			var response = await _drillBlockPointService.DeleteAsync(id);
+
+			if (response.Data == null)
+			{
+				return Json(NotFound(response));
+			}
+
+			return Json(Ok(response));
 		}
 
 		[HttpPut("Update")]
-		public async Task UpdateAsync(UpdateDrillBlockPointDto dto)
+		public async Task<JsonResult> UpdateAsync(UpdateDrillBlockPointDto dto)
 		{
-			await _drillBlockPointService.UpdateAsync(dto);
+			var response = await _drillBlockPointService.UpdateAsync(dto);
+
+			if (response.Data == null)
+			{
+				return Json(NotFound(response));
+			}
+
+			return Json(Ok(response));
 		}
 	}
 }

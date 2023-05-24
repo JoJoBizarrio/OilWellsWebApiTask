@@ -1,4 +1,5 @@
-﻿using OilWellsWebApiTask.Data;
+﻿using AutoMapper;
+using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Models;
 using OilWellsWebApiTask.Models.Dtos;
 using OilWellsWebApiTask.Repository;
@@ -9,62 +10,95 @@ namespace OilWellsWebApiTask.Service
 	public class HoleService : IHoleService
 	{
 		private readonly IRepository<Hole> _holes;
+		private readonly IMapper _mapper;
 
-		public HoleService(DataContext dataContext)
+		public HoleService(DataContext dataContext, IMapper mapper)
 		{
 			_holes = new Repository<Hole>(dataContext);
+			_mapper = mapper;
 		}
 
-		public async Task AddAsync(AddHoleDto dto)
+		public async Task<ResponseService<List<GetHoleDto>>> AddAsync(AddHoleDto dto)
 		{
-			var hole = new Hole()
-			{
-				Name = dto.Name,
-				Depth = dto.Depth,
-				DrillBlockId = dto.DrillBlockId
-			};
+			var addedItem = _mapper.Map<Hole>(dto);
 
-			await _holes.AddAsync(hole);
+			await _holes.AddAsync(addedItem);
 			await _holes.SaveAsync();
-		}
 
-		public async Task DeleteAsync(int id)
-		{
-			await _holes.DeleteAsync(id);
-			await _holes.SaveAsync();
-		}
-
-		public async Task<List<GetHoleDto>> GetAllAsync()
-		{
+			var response = new ResponseService<List<GetHoleDto>>();
 			var list = await _holes.GetAllAsync();
-			var dtoList = new List<GetHoleDto>();
+			response.Data = _mapper.Map<List<GetHoleDto>>(list);
 
-			foreach (var item in list)
+			return response;
+		}
+
+		public async Task<ResponseService<List<GetHoleDto>>> DeleteAsync(int id)
+		{
+			var response = new ResponseService<List<GetHoleDto>>();
+
+			try
 			{
-				dtoList.Add(new GetHoleDto
+				var deletedEntity = await _holes.GetByIdAsync(id);
+
+				if (deletedEntity == null)
 				{
-					Id = item.Id,
-					Name = item.Name,
-					Depth = item.Depth,
-					DrillBlockId = item.DrillBlockId
-				});
+					throw new Exception($"Item with id = {id} not found.");
+				}
+
+				await _holes.DeleteAsync(id);
+				await _holes.SaveAsync();
+
+				var list = await _holes.GetAllAsync();
+				response.Data = _mapper.Map<List<GetHoleDto>>(list);
+			}
+			catch (Exception ex)
+			{
+				response.Success = false;
+				response.Message = ex.Message;
 			}
 
-			return dtoList;
+			return response;
 		}
 
-		public async Task UpdateAsync(UpdateHoleDto dto)
+		public async Task<ResponseService<List<GetHoleDto>>> GetAllAsync()
 		{
-			var hole = new Hole()
-			{
-				Id = dto.Id,
-				Name = dto.Name,
-				Depth = dto.Depth,
-				DrillBlockId = dto.DrillBlockId
-			};
+			var response = new ResponseService<List<GetHoleDto>>();
 
-			_holes.Update(hole);
-			await _holes.SaveAsync();
+			var list = await _holes.GetAllAsync();
+			var dtoList = _mapper.Map<List<GetHoleDto>>(list);
+
+			response.Data = dtoList;
+
+			return response;
+		}
+
+		public async Task<ResponseService<GetHoleDto>> UpdateAsync(UpdateHoleDto dto)
+		{
+			var response = new ResponseService<GetHoleDto>();
+
+			try
+			{
+				var updatedItem = await _holes.GetByIdAsync(dto.Id);
+
+				if (updatedItem == null)
+				{
+					throw new Exception($"Item with id = {dto.Id} not found.");
+				}
+
+				_mapper.Map(dto, updatedItem);
+
+				_holes.Update(updatedItem);
+				await _holes.SaveAsync();
+
+				response.Data = _mapper.Map<GetHoleDto>(updatedItem);
+			}
+			catch (Exception ex)
+			{
+				response.Success = false;
+				response.Message = ex.Message;
+			}
+
+			return response;
 		}
 	}
 }

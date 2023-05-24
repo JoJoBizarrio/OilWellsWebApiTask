@@ -5,9 +5,9 @@ namespace OilWellsWebApiTask.Service.Abstract
 {
 	public interface IDrillBlockPointService
 	{
-		Task<List<GetDrillBlockPointDto>> GetAllAsync();
-		Task AddAsync(AddDrillBlockPointDto dto);
-		Task DeleteAsync(int id);
-		Task UpdateAsync(UpdateDrillBlockPointDto dto);
+		Task<ResponseService<List<GetDrillBlockPointDto>>> GetAllAsync();
+		Task<ResponseService<List<GetDrillBlockPointDto>>> AddAsync(AddDrillBlockPointDto dto);
+		Task<ResponseService<List<GetDrillBlockPointDto>>> DeleteAsync(int id);
+		Task<ResponseService<GetDrillBlockPointDto>> UpdateAsync(UpdateDrillBlockPointDto dto);
 	}
 }

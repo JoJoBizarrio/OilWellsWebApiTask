@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using OilWellsWebApiTask.AutoMapperProfiles;
 using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Models;
 using OilWellsWebApiTask.Models.Dtos;
@@ -13,43 +12,33 @@ namespace OilWellsWebApiTask.Service
 		private readonly IRepository<DrillBlock> _drillBlocks;
 		private readonly IMapper _mapper;
 
-		public DrillBlockService(DataContext dataContext)
+		public DrillBlockService(DataContext dataContext, IMapper mapper)
 		{
 			_drillBlocks = new Repository<DrillBlock>(dataContext);
-			var config = new MapperConfiguration(cfg => cfg.AddProfile<DrillBlockMapper>());
-			_mapper = config.CreateMapper();
+			_mapper = mapper;
 		}
 
 		public async Task<ResponseService<List<GetDrillBlockDto>>> GetAllAsync()
 		{
 			var response = new ResponseService<List<GetDrillBlockDto>>();
 
-			try
-			{
-				var list = await _drillBlocks.GetAllAsync();
-				var dtoList = _mapper.Map<List<GetDrillBlockDto>>(list);
+			var list = await _drillBlocks.GetAllAsync();
+			var dtoList = _mapper.Map<List<GetDrillBlockDto>>(list);
 
-				response.Data = dtoList;
-			}
-			catch (Exception ex)
-			{
-				response.Success = false;
-				response.Message = ex.Message;
-			}
+			response.Data = dtoList;
 
 			return response;
 		}
 
 		public async Task<ResponseService<List<GetDrillBlockDto>>> AddAsync(AddDrillBlockDto dto)
 		{
-			var response = new ResponseService<List<GetDrillBlockDto>>();
+			var addedItem = _mapper.Map<DrillBlock>(dto);
+			addedItem.LastUpdateDate = DateTime.UtcNow;
 
-			var drillBlock = _mapper.Map<DrillBlock>(dto);
-			drillBlock.LastUpdateDate = DateTime.UtcNow;
-
-			await _drillBlocks.AddAsync(drillBlock);
+			await _drillBlocks.AddAsync(addedItem);
 			await _drillBlocks.SaveAsync();
 
+			var response = new ResponseService<List<GetDrillBlockDto>>();
 			var list = await _drillBlocks.GetAllAsync();
 			response.Data = _mapper.Map<List<GetDrillBlockDto>>(list);
 
@@ -97,7 +86,8 @@ namespace OilWellsWebApiTask.Service
 					throw new Exception($"Item with id = {dto.Id} not found.");
 				}
 
-				updatedItem.Name = dto.Name;
+				_mapper.Map(dto, updatedItem);
+
 				updatedItem.LastUpdateDate = DateTime.UtcNow;
 
 				_drillBlocks.Update(updatedItem);
