@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Models;
 using OilWellsWebApiTask.Models.Dtos;
 using OilWellsWebApiTask.Repository;
 using OilWellsWebApiTask.Service.Abstract;
+using System.Collections.Generic;
 
 namespace OilWellsWebApiTask.Service
 {
@@ -30,14 +32,30 @@ namespace OilWellsWebApiTask.Service
 
 		public async Task<ResponseService<List<GetDrillBlockPointDto>>> AddAsync(AddDrillBlockPointDto dto)
 		{
-			var addedItem = _mapper.Map<DrillBlockPoint>(dto);
-
-			await _drillBlockPoints.AddAsync(addedItem);
-			await _drillBlockPoints.SaveAsync();
-
 			var response = new ResponseService<List<GetDrillBlockPointDto>>();
-			var list = await _drillBlockPoints.GetAllAsync();
-			response.Data = _mapper.Map<List<GetDrillBlockPointDto>>(list);
+
+			try
+			{
+				var list = await _drillBlockPoints.GetAllAsync();
+
+				if (list.Any(item => item.DrillBlockId == dto.DrillBlockId && item.Sequence == dto.Sequence))
+				{
+					throw new Exception($"Item with sequence = {dto.Sequence} already exists");
+				}
+
+				var addedItem = _mapper.Map<DrillBlockPoint>(dto);
+
+				await _drillBlockPoints.AddAsync(addedItem);
+				await _drillBlockPoints.SaveAsync();
+
+				list = await _drillBlockPoints.GetAllAsync();
+				response.Data = _mapper.Map<List<GetDrillBlockPointDto>>(list);
+			}
+			catch (Exception ex)
+			{
+				response.Success = false;
+				response.Message = ex.Message;
+			}
 
 			return response;
 		}
@@ -76,11 +94,17 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
+				var list = await _drillBlockPoints.GetAllAsync();
 				var updatedItem = await _drillBlockPoints.GetByIdAsync(dto.Id);
 
 				if (updatedItem == null)
 				{
 					throw new Exception($"Item with id = {dto.Id} not found.");
+				}
+
+				if (list.Any(item => item.DrillBlockId == dto.DrillBlockId && item.Sequence == dto.Sequence))
+				{
+					throw new Exception($"Item with sequence = {dto.Sequence} already exists.");
 				}
 
 				_mapper.Map(dto, updatedItem);
