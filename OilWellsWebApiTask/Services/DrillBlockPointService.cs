@@ -107,10 +107,9 @@ namespace OilWellsWebApiTask.Service
 					throw new Exception($"Item with id = {dto.Id} not found.");
 				}
 
-				var list = _drillBlockPoints.Get(
-						item => item.DrillBlockId == dto.DrillBlockId,
-						list => list.OrderBy(dbp => dbp.Sequence),
-						"DrillBlock");
+				var list = _drillBlockPoints.Get(item => item.DrillBlockId == dto.DrillBlockId,
+												 list => list.OrderBy(dbp => dbp.Sequence),
+												 "DrillBlock");
 
 				if (list == null)
 				{
