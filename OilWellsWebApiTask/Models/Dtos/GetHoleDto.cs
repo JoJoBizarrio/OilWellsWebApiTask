@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace OilWellsWebApiTask.Models.Dtos
 {
 	public class GetHoleDto

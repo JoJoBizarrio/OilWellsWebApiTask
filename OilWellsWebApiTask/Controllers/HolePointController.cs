@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OilWellsWebApiTask.Models.Dtos;
-using OilWellsWebApiTask.Service;
 using OilWellsWebApiTask.Service.Abstract;
 
 namespace OilWellsWebApiTask.Controllers

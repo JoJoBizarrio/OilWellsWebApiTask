@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace OilWellsWebApiTask.Models.Dtos
+﻿namespace OilWellsWebApiTask.Models.Dtos
 {
 	public class GetHolePointDto
 	{

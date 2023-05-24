@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Models;
 using OilWellsWebApiTask.Models.Dtos;
 using OilWellsWebApiTask.Repository;
 using OilWellsWebApiTask.Service.Abstract;
-using System.Collections.Generic;
 
 namespace OilWellsWebApiTask.Service
 {
