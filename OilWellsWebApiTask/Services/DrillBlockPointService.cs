@@ -100,6 +100,13 @@ namespace OilWellsWebApiTask.Service
 					throw new Exception($"Item with id = {dto.Id} not found.");
 				}
 
+				var drillBlock = list.Find(item => item.Id == dto.DrillBlockId);
+
+				if (drillBlock == null)
+				{
+					throw new Exception($"Item DrillBlock with id = {dto.DrillBlockId} not found.");
+				}
+
 				if (list.Any(item => item.DrillBlockId == dto.DrillBlockId && item.Sequence == dto.Sequence))
 				{
 					throw new Exception($"Item with sequence = {dto.Sequence} already exists.");
