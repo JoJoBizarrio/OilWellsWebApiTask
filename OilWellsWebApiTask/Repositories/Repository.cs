@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OilWellsWebApiTask.Data;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace OilWellsWebApiTask.Repository
 {
@@ -14,6 +16,31 @@ namespace OilWellsWebApiTask.Repository
 		{
 			_dataContext = dataContext;
 			DbSet = _dataContext.Set<T>();
+		}
+
+		public IEnumerable<T> Get(
+		  Expression<Func<T, bool>> filter = null,
+		  Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+		  string includeProperties = "")
+		{
+			IQueryable<T> query = DbSet;
+
+			if (filter != null)
+			{
+				query = query.Where(filter);
+			}
+
+			foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+			{
+				query = query.Include(includeProperty);
+			}
+
+			if (orderBy != null)
+			{
+				return orderBy(query).ToList();
+			}
+
+			return query.ToList();
 		}
 
 		public async Task<List<T>> GetAllAsync()
