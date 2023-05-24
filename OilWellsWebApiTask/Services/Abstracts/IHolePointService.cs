@@ -2,7 +2,7 @@
 
 namespace OilWellsWebApiTask.Service.Abstract
 {
-    public interface IHolePointService
+	public interface IHolePointService
 	{
 		Task<List<GetHolePointDto>> GetAllAsync();
 		Task AddAsync(AddHolePointDto dto);

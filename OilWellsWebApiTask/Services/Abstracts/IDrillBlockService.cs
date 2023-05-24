@@ -3,11 +3,11 @@ using OilWellsWebApiTask.Models.Dtos;
 
 namespace OilWellsWebApiTask.Service.Abstract
 {
-    public interface IDrillBlockService 
+	public interface IDrillBlockService
 	{
-		Task<List<GetDrillBlockDto>> GetAllAsync();
-		Task AddAsync(AddDrillBlockDto dto);
-		Task DeleteAsync(int id);
-		Task UpdateAsync(UpdateDrillBlockDto dto);
+		Task<ResponseService<List<GetDrillBlockDto>>> GetAllAsync();
+		Task<ResponseService<List<GetDrillBlockDto>>> AddAsync(AddDrillBlockDto dto);
+		Task<ResponseService<List<GetDrillBlockDto>>> DeleteAsync(int id);
+		Task<ResponseService<GetDrillBlockDto>> UpdateAsync(UpdateDrillBlockDto dto);
 	}
 }

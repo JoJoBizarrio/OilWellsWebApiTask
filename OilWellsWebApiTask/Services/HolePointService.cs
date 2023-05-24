@@ -8,31 +8,11 @@ namespace OilWellsWebApiTask.Service
 {
 	public class HolePointService : IHolePointService
 	{
-		private IRepository<HolePoint> _holePoints;
+		private readonly IRepository<HolePoint> _holePoints;
 
 		public HolePointService(DataContext dataContext)
 		{
 			_holePoints = new Repository<HolePoint>(dataContext);
-		}
-
-		public async Task AddAsync(AddHolePointDto dto)
-		{
-			var holePoint = new HolePoint()
-			{
-				X = dto.X,
-				Y = dto.Y,
-				Z = dto.Z,
-				HoleId = dto.HoleId
-			};
-
-			await _holePoints.AddAsync(holePoint);
-			await _holePoints.SaveAsync();
-		}
-
-		public async Task DeleteAsync(int id)
-		{
-			await _holePoints.DeleteAsync(id);
-			await _holePoints.SaveAsync();
 		}
 
 		public async Task<List<GetHolePointDto>> GetAllAsync()
@@ -53,6 +33,26 @@ namespace OilWellsWebApiTask.Service
 			}
 
 			return dtoList;
+		}
+
+		public async Task AddAsync(AddHolePointDto dto)
+		{
+			var holePoint = new HolePoint()
+			{
+				X = dto.X,
+				Y = dto.Y,
+				Z = dto.Z,
+				HoleId = dto.HoleId
+			};
+
+			await _holePoints.AddAsync(holePoint);
+			await _holePoints.SaveAsync();
+		}
+
+		public async Task DeleteAsync(int id)
+		{
+			await _holePoints.DeleteAsync(id);
+			await _holePoints.SaveAsync();
 		}
 
 		public async Task UpdateAsync(UpdateHolePointDto dto)

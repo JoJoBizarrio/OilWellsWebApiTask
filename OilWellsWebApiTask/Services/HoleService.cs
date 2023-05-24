@@ -8,7 +8,7 @@ namespace OilWellsWebApiTask.Service
 {
 	public class HoleService : IHoleService
 	{
-		private IRepository<Hole> _holes;
+		private readonly IRepository<Hole> _holes;
 
 		public HoleService(DataContext dataContext)
 		{
