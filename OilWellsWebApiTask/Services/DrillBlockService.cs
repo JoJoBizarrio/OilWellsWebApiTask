@@ -32,15 +32,16 @@ namespace OilWellsWebApiTask.Service
 
 		public async Task<ResponseService<List<GetDrillBlockDto>>> AddAsync(AddDrillBlockDto dto)
 		{
+			var response = new ResponseService<List<GetDrillBlockDto>>();
+
 			var addedItem = _mapper.Map<DrillBlock>(dto);
 			addedItem.LastUpdateDate = DateTime.UtcNow;
 
 			await _drillBlocks.AddAsync(addedItem);
 			await _drillBlocks.SaveAsync();
 
-			var response = new ResponseService<List<GetDrillBlockDto>>();
-			var list = await _drillBlocks.GetAllAsync();
-			response.Data = _mapper.Map<List<GetDrillBlockDto>>(list);
+			var responseList = await _drillBlocks.GetAllAsync();
+			response.Data = _mapper.Map<List<GetDrillBlockDto>>(responseList);
 
 			return response;
 		}
@@ -51,25 +52,24 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var deletedEntity = await _drillBlocks.GetByIdAsync(id);
+				var deletedItem = await _drillBlocks.GetByIdAsync(id);
 
-				if (deletedEntity == null)
+				if (deletedItem == null)
 				{
 					throw new Exception($"Item with id = {id} not found.");
 				}
 
 				await _drillBlocks.DeleteAsync(id);
 				await _drillBlocks.SaveAsync();
-
-				var list = await _drillBlocks.GetAllAsync();
-				response.Data = _mapper.Map<List<GetDrillBlockDto>>(list);
 			}
 			catch (Exception ex)
 			{
-				response.Success = false;
-				response.Message = ex.Message;
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
 			}
 
+			var responseList = await _drillBlocks.GetAllAsync();
+			response.Data = _mapper.Map<List<GetDrillBlockDto>>(responseList);
 			return response;
 		}
 
@@ -97,8 +97,8 @@ namespace OilWellsWebApiTask.Service
 			}
 			catch (Exception ex)
 			{
-				response.Success = false;
-				response.Message = ex.Message;
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
 			}
 
 			return response;

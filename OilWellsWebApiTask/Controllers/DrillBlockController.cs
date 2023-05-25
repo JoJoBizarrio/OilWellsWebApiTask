@@ -32,7 +32,7 @@ namespace OilWellsWebApiTask.Controllers
 		{
 			var response = await _drillBlockService.DeleteAsync(id);
 
-			if (response.Data == null)
+			if (!response.IsSuccess)
 			{
 				return Json(NotFound(response));
 			}
@@ -45,7 +45,7 @@ namespace OilWellsWebApiTask.Controllers
 		{
 			var response = await _drillBlockService.UpdateAsync(dto);
 
-			if (response.Data == null)
+			if (!response.IsSuccess)
 			{
 				return Json(NotFound(response));
 			}

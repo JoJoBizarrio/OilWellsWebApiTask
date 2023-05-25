@@ -30,12 +30,31 @@ namespace OilWellsWebApiTask.Service
 
 		public async Task<ResponseService<List<GetHolePointDto>>> AddAsync(AddHolePointDto dto)
 		{
-			var addedItem = _mapper.Map<HolePoint>(dto);
-
-			await _holePoints.AddAsync(addedItem);
-			await _holePoints.SaveAsync();
-
 			var response = new ResponseService<List<GetHolePointDto>>();
+
+			try
+			{
+				var holesList = _holePoints.Get(
+					item => item.HoleId == dto.HoleId,
+					null,
+					"HoleId");
+
+				if (holesList == null)
+				{
+					throw new Exception($"Hole with id = {dto.HoleId} not found.");
+				}
+
+				var addedItem = _mapper.Map<HolePoint>(dto);
+
+				await _holePoints.AddAsync(addedItem);
+				await _holePoints.SaveAsync();
+			}
+			catch (Exception ex)
+			{
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
+			}
+
 			var list = await _holePoints.GetAllAsync();
 			response.Data = _mapper.Map<List<GetHolePointDto>>(list);
 
@@ -48,9 +67,9 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var deletedEntity = await _holePoints.GetByIdAsync(id);
+				var deletedItem = await _holePoints.GetByIdAsync(id);
 
-				if (deletedEntity == null)
+				if (deletedItem == null)
 				{
 					throw new Exception($"Item with id = {id} not found.");
 				}
@@ -63,8 +82,8 @@ namespace OilWellsWebApiTask.Service
 			}
 			catch (Exception ex)
 			{
-				response.Success = false;
-				response.Message = ex.Message;
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
 			}
 
 			return response;
@@ -76,7 +95,14 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var updatedItem = await _holePoints.GetByIdAsync(dto.Id);
+				var holesList = _holePoints.Get(item => item.HoleId == dto.HoleId, null, "HoleId");
+
+				if (holesList == null)
+				{
+					throw new Exception($"Hole with id = {dto.HoleId} not found.");
+				}
+
+				var updatedItem = holesList.FirstOrDefault(item => item.Id == dto.Id);
 
 				if (updatedItem == null)
 				{
@@ -92,8 +118,8 @@ namespace OilWellsWebApiTask.Service
 			}
 			catch (Exception ex)
 			{
-				response.Success = false;
-				response.Message = ex.Message;
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
 			}
 
 			return response;

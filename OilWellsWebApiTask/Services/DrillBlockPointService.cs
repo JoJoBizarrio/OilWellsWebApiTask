@@ -4,6 +4,7 @@ using OilWellsWebApiTask.Models;
 using OilWellsWebApiTask.Models.Dtos;
 using OilWellsWebApiTask.Repository;
 using OilWellsWebApiTask.Service.Abstract;
+using System.Collections.Generic;
 
 namespace OilWellsWebApiTask.Service
 {
@@ -34,35 +35,34 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var list = _drillBlockPoints.Get(
+				var drillBlockPointList = _drillBlockPoints.Get(
 						item => item.DrillBlockId == dto.DrillBlockId,
 						list => list.OrderBy(dbp => dbp.Sequence),
 						"DrillBlock");
 
-				if (list == null)
+				if (drillBlockPointList == null)
 				{
 					throw new Exception($"Drill block with id = {dto.DrillBlockId} not found.");
 				}
 
-				if (list.Any(item => item.Sequence == dto.Sequence))
+				if (drillBlockPointList.Any(item => item.Sequence == dto.Sequence))
 				{
-					throw new Exception($"Item with sequence = {dto.Sequence} already exists");
+					throw new Exception($"Item with sequence = {dto.Sequence} already exists.");
 				}
 
 				var addedItem = _mapper.Map<DrillBlockPoint>(dto);
 
 				await _drillBlockPoints.AddAsync(addedItem);
 				await _drillBlockPoints.SaveAsync();
-
-				list = await _drillBlockPoints.GetAllAsync();
-				response.Data = _mapper.Map<List<GetDrillBlockPointDto>>(list);
 			}
 			catch (Exception ex)
 			{
-				response.Success = false;
-				response.Message = ex.Message;
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
 			}
 
+			var responseList = await _drillBlockPoints.GetAllAsync();
+			response.Data = _mapper.Map<List<GetDrillBlockPointDto>>(responseList);
 			return response;
 		}
 
@@ -81,16 +81,15 @@ namespace OilWellsWebApiTask.Service
 
 				await _drillBlockPoints.DeleteAsync(id);
 				await _drillBlockPoints.SaveAsync();
-
-				var list = await _drillBlockPoints.GetAllAsync();
-				response.Data = _mapper.Map<List<GetDrillBlockPointDto>>(list);
 			}
 			catch (Exception ex)
 			{
-				response.Success = false;
-				response.Message = ex.Message;
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
 			}
 
+			var responseList = await _drillBlockPoints.GetAllAsync();
+			response.Data = _mapper.Map<List<GetDrillBlockPointDto>>(responseList);
 			return response;
 		}
 
@@ -125,11 +124,13 @@ namespace OilWellsWebApiTask.Service
 
 				_drillBlockPoints.Update(updatedItem);
 				await _drillBlockPoints.SaveAsync();
+
+				response.Data = _mapper.Map<GetDrillBlockPointDto>(updatedItem);
 			}
 			catch (Exception ex)
 			{
-				response.Success = false;
-				response.Message = ex.Message;
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
 			}
 
 			return response;
