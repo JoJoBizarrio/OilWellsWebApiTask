@@ -9,6 +9,9 @@ namespace OilWellsWebApiTask.Repository
 			Func<IQueryable<T>,
 			IOrderedQueryable<T>> orderBy = null,
 			string includeProperties = "");
+
+		IQueryable<T> GetAll(params Expression<Func<T, object>>[] includeProperties);
+
 		Task<List<T>> GetAllAsync();
 		Task<T> GetByIdAsync(int id);
 		Task AddAsync(T entity);

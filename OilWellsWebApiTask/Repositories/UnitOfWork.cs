@@ -25,7 +25,7 @@ namespace OilWellsWebApiTask.Repositories
 			get
 			{
 				_drillBlocksRepository ??= new Repository<DrillBlock>(_dataContext);
-
+				
 				return _drillBlocksRepository;
 			}
 		}

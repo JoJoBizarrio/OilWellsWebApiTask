@@ -2,19 +2,19 @@
 using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Models;
 using OilWellsWebApiTask.Models.Dtos;
-using OilWellsWebApiTask.Repository;
+using OilWellsWebApiTask.Repositories;
 using OilWellsWebApiTask.Service.Abstract;
 
 namespace OilWellsWebApiTask.Service
 {
 	public class DrillBlockService : IDrillBlockService
 	{
-		private readonly IRepository<DrillBlock> _drillBlocks;
+		private readonly UnitOfWork _uow;
 		private readonly IMapper _mapper;
 
 		public DrillBlockService(DataContext dataContext, IMapper mapper)
 		{
-			_drillBlocks = new Repository<DrillBlock>(dataContext);
+			_uow = new UnitOfWork(dataContext);
 			_mapper = mapper;
 		}
 
@@ -22,7 +22,7 @@ namespace OilWellsWebApiTask.Service
 		{
 			var response = new ResponseService<List<GetDrillBlockDto>>();
 
-			var list = await _drillBlocks.GetAllAsync();
+			var list = await _uow.DrillBlocks.GetAllAsync();
 			var dtoList = _mapper.Map<List<GetDrillBlockDto>>(list);
 
 			response.Data = dtoList;
@@ -37,10 +37,10 @@ namespace OilWellsWebApiTask.Service
 			var addedItem = _mapper.Map<DrillBlock>(dto);
 			addedItem.LastUpdateDate = DateTime.UtcNow;
 
-			await _drillBlocks.AddAsync(addedItem);
-			await _drillBlocks.SaveAsync();
+			await _uow.DrillBlocks.AddAsync(addedItem);
+			await _uow.DrillBlocks.SaveAsync();
 
-			var responseList = await _drillBlocks.GetAllAsync();
+			var responseList = await _uow.DrillBlocks.GetAllAsync();
 			response.Data = _mapper.Map<List<GetDrillBlockDto>>(responseList);
 
 			return response;
@@ -52,15 +52,15 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var deletedItem = await _drillBlocks.GetByIdAsync(id);
+				var deletedItem = await _uow.DrillBlocks.GetByIdAsync(id);
 
 				if (deletedItem == null)
 				{
 					throw new Exception($"Item with id = {id} not found.");
 				}
 
-				await _drillBlocks.DeleteAsync(id);
-				await _drillBlocks.SaveAsync();
+				await _uow.DrillBlocks.DeleteAsync(id);
+				await _uow.DrillBlocks.SaveAsync();
 			}
 			catch (Exception ex)
 			{
@@ -68,7 +68,7 @@ namespace OilWellsWebApiTask.Service
 				response.ErrorMessage = ex.Message;
 			}
 
-			var responseList = await _drillBlocks.GetAllAsync();
+			var responseList = await _uow.DrillBlocks.GetAllAsync();
 			response.Data = _mapper.Map<List<GetDrillBlockDto>>(responseList);
 			return response;
 		}
@@ -79,7 +79,7 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var updatedItem = await _drillBlocks.GetByIdAsync(dto.Id);
+				var updatedItem = await _uow.DrillBlocks.GetByIdAsync(dto.Id);
 
 				if (updatedItem == null)
 				{
@@ -90,8 +90,8 @@ namespace OilWellsWebApiTask.Service
 
 				updatedItem.LastUpdateDate = DateTime.UtcNow;
 
-				_drillBlocks.Update(updatedItem);
-				await _drillBlocks.SaveAsync();
+				_uow.DrillBlocks.Update(updatedItem);
+				await _uow.DrillBlocks.SaveAsync();
 
 				response.Data = _mapper.Map<GetDrillBlockDto>(updatedItem);
 			}

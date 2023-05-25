@@ -2,6 +2,7 @@
 using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Models;
 using OilWellsWebApiTask.Models.Dtos;
+using OilWellsWebApiTask.Repositories;
 using OilWellsWebApiTask.Repository;
 using OilWellsWebApiTask.Service.Abstract;
 
@@ -9,12 +10,12 @@ namespace OilWellsWebApiTask.Service
 {
 	public class HoleService : IHoleService
 	{
-		private readonly IRepository<Hole> _holes;
+		private readonly UnitOfWork _uow;
 		private readonly IMapper _mapper;
 
 		public HoleService(DataContext dataContext, IMapper mapper)
 		{
-			_holes = new Repository<Hole>(dataContext);
+			_uow = new UnitOfWork(dataContext);
 			_mapper = mapper;
 		}
 
@@ -22,7 +23,7 @@ namespace OilWellsWebApiTask.Service
 		{
 			var response = new ResponseService<List<GetHoleDto>>();
 
-			var list = await _holes.GetAllAsync();
+			var list = await _uow.Holes.GetAllAsync();
 			var dtoList = _mapper.Map<List<GetHoleDto>>(list);
 
 			response.Data = dtoList;
@@ -36,7 +37,7 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var holesList = _holes.Get(
+				var holesList = _uow.Holes.Get(
 					item => item.DrillBlockId == dto.DrillBlockId,
 					null,
 					"DrillBlock");
@@ -48,8 +49,8 @@ namespace OilWellsWebApiTask.Service
 
 				var addedItem = _mapper.Map<Hole>(dto);
 
-				await _holes.AddAsync(addedItem);
-				await _holes.SaveAsync();
+				await _uow.Holes.AddAsync(addedItem);
+				await _uow.Holes.SaveAsync();
 			}
 			catch (Exception ex)
 			{
@@ -57,7 +58,7 @@ namespace OilWellsWebApiTask.Service
 				response.ErrorMessage = ex.Message;
 			}
 
-			var list = await _holes.GetAllAsync();
+			var list = await _uow.Holes.GetAllAsync();
 			response.Data = _mapper.Map<List<GetHoleDto>>(list);
 
 			return response;
@@ -69,15 +70,15 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var deletedItem = await _holes.GetByIdAsync(id);
+				var deletedItem = await _uow.Holes.GetByIdAsync(id);
 
 				if (deletedItem == null)
 				{
 					throw new Exception($"Item with id = {id} not found.");
 				}
 
-				await _holes.DeleteAsync(id);
-				await _holes.SaveAsync();
+				await _uow.Holes.DeleteAsync(id);
+				await _uow.Holes.SaveAsync();
 			}
 			catch (Exception ex)
 			{
@@ -85,7 +86,7 @@ namespace OilWellsWebApiTask.Service
 				response.ErrorMessage = ex.Message;
 			}
 
-			var holesList = await _holes.GetAllAsync();
+			var holesList = await _uow.Holes.GetAllAsync();
 			response.Data = _mapper.Map<List<GetHoleDto>>(holesList);
 			return response;
 		}
@@ -96,14 +97,14 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var holesList = _holes.Get(item => item.DrillBlockId == dto.DrillBlockId, null, "DrillBlock");
+				var holesList = _uow.Holes.Get(item => item.DrillBlockId == dto.DrillBlockId, null, "DrillBlock");
 
 				if (holesList == null)
 				{
 					throw new Exception($"Drill block with id = {dto.Id} not found.");
 				}
 
-				var updatedItem = await _holes.GetByIdAsync(dto.Id);
+				var updatedItem = await _uow.Holes.GetByIdAsync(dto.Id);
 
 				if (updatedItem == null)
 				{
@@ -112,8 +113,8 @@ namespace OilWellsWebApiTask.Service
 
 				_mapper.Map(dto, updatedItem);
 
-				_holes.Update(updatedItem);
-				await _holes.SaveAsync();
+				_uow.Holes.Update(updatedItem);
+				await _uow.Holes.SaveAsync();
 
 				response.Data = _mapper.Map<GetHoleDto>(updatedItem);
 			}
