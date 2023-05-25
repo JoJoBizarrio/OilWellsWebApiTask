@@ -1,12 +1,13 @@
-﻿using OilWellsWebApiTask.Models.Dtos;
+﻿using OilWellsWebApiTask.Models;
+using OilWellsWebApiTask.Models.Dtos;
 
 namespace OilWellsWebApiTask.Service.Abstract
 {
-    public interface IHolePointService
+	public interface IHolePointService
 	{
-		Task<List<GetHolePointDto>> GetAllAsync();
-		Task AddAsync(AddHolePointDto dto);
-		Task DeleteAsync(int id);
-		Task UpdateAsync(UpdateHolePointDto dto);
+		Task<ResponseService<List<GetHolePointDto>>> GetAllAsync();
+		Task<ResponseService<List<GetHolePointDto>>> AddAsync(AddHolePointDto dto);
+		Task<ResponseService<List<GetHolePointDto>>> DeleteAsync(int id);
+		Task<ResponseService<GetHolePointDto>> UpdateAsync(UpdateHolePointDto dto);
 	}
 }

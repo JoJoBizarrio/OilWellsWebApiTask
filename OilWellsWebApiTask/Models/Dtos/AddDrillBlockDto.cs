@@ -6,7 +6,7 @@ namespace OilWellsWebApiTask.Models.Dtos
 	{
 		[Required]
 		[MinLength(1)]
-		[MaxLength(20)]
+		[MaxLength(100)]
 		public string Name { get; set; }
 	}
 }

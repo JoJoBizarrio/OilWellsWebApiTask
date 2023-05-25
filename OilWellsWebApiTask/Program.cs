@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Service;
 using OilWellsWebApiTask.Service.Abstract;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 namespace OilWellsWebApiTask
@@ -27,6 +28,8 @@ namespace OilWellsWebApiTask
 			builder.Services.AddScoped<IDrillBlockPointService, DrillBlockPointService>();
 			builder.Services.AddScoped<IHoleService, HoleService>();
 			builder.Services.AddScoped<IHolePointService,  HolePointService>();
+
+			builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 			builder.Services.AddDbContext<DataContext>(options =>
 				options.UseNpgsql(builder.Configuration.GetConnectionString("OilWellsWebApiTask")));

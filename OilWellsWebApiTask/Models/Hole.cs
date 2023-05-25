@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-
-namespace OilWellsWebApiTask.Models
+﻿namespace OilWellsWebApiTask.Models
 {
 	public class Hole
 	{

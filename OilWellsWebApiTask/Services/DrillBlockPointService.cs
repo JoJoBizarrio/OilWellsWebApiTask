@@ -1,76 +1,136 @@
-﻿using OilWellsWebApiTask.Data;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Models;
 using OilWellsWebApiTask.Models.Dtos;
-using OilWellsWebApiTask.Repository;
+using OilWellsWebApiTask.Repositories;
 using OilWellsWebApiTask.Service.Abstract;
 
 namespace OilWellsWebApiTask.Service
 {
 	public class DrillBlockPointService : IDrillBlockPointService
 	{
-		private readonly IRepository<DrillBlockPoint> _drillBlockPoints;
+		private readonly UnitOfWork _uow;
+		private readonly IMapper _mapper;
 
-		public DrillBlockPointService(DataContext dataContext)
+		public DrillBlockPointService(DataContext dataContext, IMapper mapper)
 		{
-			_drillBlockPoints = new Repository<DrillBlockPoint>(dataContext);
+			_uow = new UnitOfWork(dataContext);
+			_mapper = mapper;
 		}
 
-		public async Task<List<GetDrillBlockPointDto>> GetAllAsync()
+		public async Task<ResponseService<List<GetDrillBlockPointDto>>> GetAllAsync()
 		{
-			var list = await _drillBlockPoints.GetAllAsync();
-			var dtoList = new List<GetDrillBlockPointDto>();
+			var response = new ResponseService<List<GetDrillBlockPointDto>>();
 
-			foreach (var item in list)
+			var list = await _uow.DrillBlockPoints.GetAllAsync();
+			response.Data = _mapper.Map<List<GetDrillBlockPointDto>>(list);
+
+			return response;
+		}
+
+		public async Task<ResponseService<List<GetDrillBlockPointDto>>> AddAsync(AddDrillBlockPointDto dto)
+		{
+			var response = new ResponseService<List<GetDrillBlockPointDto>>();
+
+			try
 			{
-				dtoList.Add(new GetDrillBlockPointDto()
+				var list = _uow.DrillBlocks.GetAll(item => item.DrillBlockPoints);
+				var drillBlocks = await list.FirstOrDefaultAsync(item => item.Id == dto.DrillBlockId);
+
+				if (drillBlocks == null)
 				{
-					Id = item.Id,
-					Sequence = item.Sequence,
-					X = item.X,
-					Y = item.Y,
-					Z = item.Z,
-					DrillBlockId = item.DrillBlockId
-				});
+					throw new Exception($"Drill block with id = {dto.DrillBlockId} not found.");
+				}
+
+				if (drillBlocks.DrillBlockPoints.Any(item => item.Sequence == dto.Sequence))
+				{
+					throw new Exception($"Item with sequence = {dto.Sequence} already exists.");
+				}
+
+				var addedItem = _mapper.Map<DrillBlockPoint>(dto);
+
+				await _uow.DrillBlockPoints.AddAsync(addedItem);
+				await _uow.DrillBlockPoints.SaveAsync();
+			}
+			catch (Exception ex)
+			{
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
 			}
 
-			return dtoList;
+			var responseList = await _uow.DrillBlockPoints.GetAllAsync();
+			response.Data = _mapper.Map<List<GetDrillBlockPointDto>>(responseList);
+			return response;
 		}
 
-		public async Task AddAsync(AddDrillBlockPointDto dto)
+		public async Task<ResponseService<List<GetDrillBlockPointDto>>> DeleteAsync(int id)
 		{
-			var drillBlockPoint = new DrillBlockPoint()
+			var response = new ResponseService<List<GetDrillBlockPointDto>>();
+
+			try
 			{
-				Sequence = dto.Sequence,
-				X = dto.X,
-				Y = dto.Y,
-				Z = dto.Z,
-				DrillBlockId = dto.DrillBlockId
-			};
+				var deletedItem = await _uow.DrillBlockPoints.GetByIdAsync(id);
 
-			await _drillBlockPoints.AddAsync(drillBlockPoint);
-			await _drillBlockPoints.SaveAsync();
-		}
+				if (deletedItem == null)
+				{
+					throw new Exception($"Item with id = {id} not found.");
+				}
 
-		public async Task DeleteAsync(int id)
-		{
-			await _drillBlockPoints.DeleteAsync(id);
-			await _drillBlockPoints.SaveAsync();
-		}
-
-		public async Task UpdateAsync(UpdateDrillBlockPointDto dto)
-		{
-			var drillBlockPoint = new DrillBlockPoint()
+				await _uow.DrillBlockPoints.DeleteAsync(id);
+				await _uow.DrillBlockPoints.SaveAsync();
+			}
+			catch (Exception ex)
 			{
-				Id = dto.Id,
-				Sequence = dto.Sequence,
-				X = dto.X,
-				Y = dto.Y,
-				Z = dto.Z,
-				DrillBlockId = dto.DrillBlockId
-			};
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
+			}
 
-			_drillBlockPoints.Update(drillBlockPoint);
-			await _drillBlockPoints.SaveAsync();
+			var responseList = await _uow.DrillBlockPoints.GetAllAsync();
+			response.Data = _mapper.Map<List<GetDrillBlockPointDto>>(responseList);
+			return response;
+		}
+
+		public async Task<ResponseService<GetDrillBlockPointDto>> UpdateAsync(UpdateDrillBlockPointDto dto)
+		{
+			var response = new ResponseService<GetDrillBlockPointDto>();
+
+			try
+			{
+				var updatedItem = await _uow.DrillBlockPoints.GetByIdAsync(dto.Id);
+
+				if (updatedItem == null)
+				{
+					throw new Exception($"Item with id = {dto.Id} not found.");
+				}
+
+				var list = _uow.DrillBlocks.GetAll(item => item.DrillBlockPoints);
+				var drillBlocks = await list.FirstOrDefaultAsync(item => item.Id == dto.DrillBlockId);
+
+				if (drillBlocks == null)
+				{
+					throw new Exception($"Drill block with id = {dto.DrillBlockId} not found.");
+				}
+
+				if (drillBlocks.DrillBlockPoints.Any(item => item.Sequence == dto.Sequence))
+				{
+					throw new Exception($"Item with sequence = {dto.Sequence} already exists.");
+				}
+
+				_mapper.Map(dto, updatedItem);
+
+				_uow.DrillBlockPoints.Update(updatedItem);
+				await _uow.DrillBlockPoints.SaveAsync();
+
+				response.Data = _mapper.Map<GetDrillBlockPointDto>(updatedItem);
+			}
+			catch (Exception ex)
+			{
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
+			}
+
+			return response;
 		}
 	}
 }

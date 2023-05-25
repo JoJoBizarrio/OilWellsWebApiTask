@@ -1,69 +1,107 @@
-﻿using OilWellsWebApiTask.Data;
+﻿using AutoMapper;
+using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Models;
 using OilWellsWebApiTask.Models.Dtos;
-using OilWellsWebApiTask.Repository;
+using OilWellsWebApiTask.Repositories;
 using OilWellsWebApiTask.Service.Abstract;
 
 namespace OilWellsWebApiTask.Service
 {
 	public class DrillBlockService : IDrillBlockService
 	{
-		private IRepository<DrillBlock> _drillBlocks;
+		private readonly UnitOfWork _uow;
+		private readonly IMapper _mapper;
 
-		public DrillBlockService(DataContext dataContext)
+		public DrillBlockService(DataContext dataContext, IMapper mapper)
 		{
-			_drillBlocks = new Repository<DrillBlock>(dataContext);
+			_uow = new UnitOfWork(dataContext);
+			_mapper = mapper;
 		}
 
-		public async Task<List<GetDrillBlockDto>> GetAllAsync()
+		public async Task<ResponseService<List<GetDrillBlockDto>>> GetAllAsync()
 		{
-			var list = await _drillBlocks.GetAllAsync();
-			var dtoList = new List<GetDrillBlockDto>();
+			var response = new ResponseService<List<GetDrillBlockDto>>();
 
-			foreach (var item in list)
+			var list = await _uow.DrillBlocks.GetAllAsync();
+			var dtoList = _mapper.Map<List<GetDrillBlockDto>>(list);
+
+			response.Data = dtoList;
+
+			return response;
+		}
+
+		public async Task<ResponseService<List<GetDrillBlockDto>>> AddAsync(AddDrillBlockDto dto)
+		{
+			var response = new ResponseService<List<GetDrillBlockDto>>();
+
+			var addedItem = _mapper.Map<DrillBlock>(dto);
+			addedItem.LastUpdateDate = DateTime.UtcNow;
+
+			await _uow.DrillBlocks.AddAsync(addedItem);
+			await _uow.DrillBlocks.SaveAsync();
+
+			var responseList = await _uow.DrillBlocks.GetAllAsync();
+			response.Data = _mapper.Map<List<GetDrillBlockDto>>(responseList);
+
+			return response;
+		}
+
+		public async Task<ResponseService<List<GetDrillBlockDto>>> DeleteAsync(int id)
+		{
+			var response = new ResponseService<List<GetDrillBlockDto>>();
+
+			try
 			{
-				dtoList.Add(new GetDrillBlockDto()
+				var deletedItem = await _uow.DrillBlocks.GetByIdAsync(id);
+
+				if (deletedItem == null)
 				{
-					Id = item.Id,
-					Name = item.Name,
-					LastUpdateDate = item.LastUpdateDate
-				});
+					throw new Exception($"Item with id = {id} not found.");
+				}
+
+				await _uow.DrillBlocks.DeleteAsync(id);
+				await _uow.DrillBlocks.SaveAsync();
+			}
+			catch (Exception ex)
+			{
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
 			}
 
-			return dtoList;
+			var responseList = await _uow.DrillBlocks.GetAllAsync();
+			response.Data = _mapper.Map<List<GetDrillBlockDto>>(responseList);
+			return response;
 		}
 
-		public async Task AddAsync(AddDrillBlockDto dto)
+		public async Task<ResponseService<GetDrillBlockDto>> UpdateAsync(UpdateDrillBlockDto dto)
 		{
-			var drillBlock = new DrillBlock()
+			var response = new ResponseService<GetDrillBlockDto>();
+
+			try
 			{
-				Name = dto.Name
-			};
+				var updatedItem = await _uow.DrillBlocks.GetByIdAsync(dto.Id);
 
-			drillBlock.LastUpdateDate = DateTime.UtcNow;
+				if (updatedItem == null)
+				{
+					throw new Exception($"Item with id = {dto.Id} not found.");
+				}
 
-			await _drillBlocks.AddAsync(drillBlock);
-			await _drillBlocks.SaveAsync();
-		}
+				_mapper.Map(dto, updatedItem);
 
-		public async Task DeleteAsync(int id)
-		{
-			await _drillBlocks.DeleteAsync(id);
-			await _drillBlocks.SaveAsync();
-		}
+				updatedItem.LastUpdateDate = DateTime.UtcNow;
 
-		public async Task UpdateAsync(UpdateDrillBlockDto dto)
-		{
-			var drillBlock = new DrillBlock()
+				_uow.DrillBlocks.Update(updatedItem);
+				await _uow.DrillBlocks.SaveAsync();
+
+				response.Data = _mapper.Map<GetDrillBlockDto>(updatedItem);
+			}
+			catch (Exception ex)
 			{
-				Id = dto.Id,
-				Name = dto.Name
-			};
+				response.IsSuccess = false;
+				response.ErrorMessage = ex.Message;
+			}
 
-			drillBlock.LastUpdateDate = DateTime.UtcNow;
-
-			_drillBlocks.Update(drillBlock);
-			await _drillBlocks.SaveAsync();
+			return response;
 		}
 	}
 }

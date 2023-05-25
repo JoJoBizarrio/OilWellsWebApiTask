@@ -18,25 +18,39 @@ namespace OilWellsWebApiTask.Controllers
 		[HttpGet("All")]
 		public async Task<JsonResult> GetAllAsync()
 		{
-			return new JsonResult(await _drillBlockService.GetAllAsync());
+			return Json(Ok(await _drillBlockService.GetAllAsync()));
 		}
 
 		[HttpPost("Add")]
-		public async Task AddAsync(AddDrillBlockDto dto)
+		public async Task<JsonResult> AddAsync(AddDrillBlockDto dto)
 		{
-			await _drillBlockService.AddAsync(dto);
+			return Json(Ok(await _drillBlockService.AddAsync(dto)));
 		}
 
 		[HttpDelete("Delete/{id:int}")]
-		public async Task DeleteAsync(int id)
+		public async Task<JsonResult> DeleteAsync(int id)
 		{
-			await _drillBlockService.DeleteAsync(id);
+			var response = await _drillBlockService.DeleteAsync(id);
+
+			if (!response.IsSuccess)
+			{
+				return Json(NotFound(response));
+			}
+
+			return Json(Ok(response));
 		}
 
 		[HttpPut("Update")]
-		public async Task UpdateAsync(UpdateDrillBlockDto dto)
+		public async Task<JsonResult> UpdateAsync(UpdateDrillBlockDto dto)
 		{
-			await _drillBlockService.UpdateAsync(dto);
+			var response = await _drillBlockService.UpdateAsync(dto);
+
+			if (!response.IsSuccess)
+			{
+				return Json(NotFound(response));
+			}
+
+			return Json(Ok(response));
 		}
 	}
 }
