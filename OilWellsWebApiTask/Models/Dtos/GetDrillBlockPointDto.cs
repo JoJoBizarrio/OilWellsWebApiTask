@@ -1,7 +1,8 @@
-﻿namespace OilWellsWebApiTask.Models
+﻿namespace OilWellsWebApiTask.Models.Dtos
 {
-	public class DrillBlockPoint
+	public class GetDrillBlockPointDto
 	{
+
 		public int Id { get; set; }
 
 		public int Sequence { get; set; }
@@ -10,10 +11,5 @@
 		public int Z { get; set; }
 
 		public int DrillBlockId { get; set; }
-		public DrillBlock DrillBlock { get; set; }
-
-		public DrillBlockPoint()
-		{
-		}
 	}
 }

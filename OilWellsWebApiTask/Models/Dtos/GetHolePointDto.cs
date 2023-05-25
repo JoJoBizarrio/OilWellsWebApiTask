@@ -1,6 +1,6 @@
-﻿namespace OilWellsWebApiTask.Models
+﻿namespace OilWellsWebApiTask.Models.Dtos
 {
-	public class HolePoint
+	public class GetHolePointDto
 	{
 		public int Id { get; set; }
 		public int X { get; set; }
@@ -8,8 +8,5 @@
 		public int Z { get; set; }
 
 		public int HoleId { get; set; }
-		public Hole Hole { get; set; }
-
-		public HolePoint() { }
 	}
 }
