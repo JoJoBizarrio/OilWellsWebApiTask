@@ -14,7 +14,6 @@
 
 		public DrillBlockPoint()
 		{
-			DrillBlock = new DrillBlock();
 		}
 	}
 }
