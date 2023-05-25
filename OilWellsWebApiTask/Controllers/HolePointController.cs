@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OilWellsWebApiTask.Models.Dtos;
+using OilWellsWebApiTask.Service;
 using OilWellsWebApiTask.Service.Abstract;
 
 namespace OilWellsWebApiTask.Controllers
@@ -24,7 +25,14 @@ namespace OilWellsWebApiTask.Controllers
 		[HttpPost("Add")]
 		public async Task<JsonResult> AddAsync(AddHolePointDto dto)
 		{
-			return Json(Ok(await _holePointService.AddAsync(dto)));
+			var response = await _holePointService.AddAsync(dto);
+
+			if (!response.IsSuccess)
+			{
+				return Json(NotFound(response));
+			}
+
+			return Json(Ok(response));
 		}
 
 		[HttpDelete("Delete/{id:int}")]

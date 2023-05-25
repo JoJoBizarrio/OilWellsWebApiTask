@@ -37,12 +37,9 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var holesList = _uow.Holes.Get(
-					item => item.DrillBlockId == dto.DrillBlockId,
-					null,
-					"DrillBlock");
+				var drillBlock = await _uow.DrillBlocks.GetByIdAsync(dto.DrillBlockId);
 
-				if (holesList == null)
+				if (drillBlock == null)
 				{
 					throw new Exception($"Drill block with id = {dto.DrillBlockId} not found.");
 				}
@@ -97,18 +94,19 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var holesList = _uow.Holes.Get(item => item.DrillBlockId == dto.DrillBlockId, null, "DrillBlock");
-
-				if (holesList == null)
-				{
-					throw new Exception($"Drill block with id = {dto.Id} not found.");
-				}
-
 				var updatedItem = await _uow.Holes.GetByIdAsync(dto.Id);
 
 				if (updatedItem == null)
 				{
 					throw new Exception($"Item with id = {dto.Id} not found.");
+				}
+
+				var list = await _uow.DrillBlocks.GetAllAsync();
+				var drillBlock = list.Where(item => item.Id == dto.DrillBlockId);
+
+				if (drillBlock == null)
+				{
+					throw new Exception($"Drill block with id = {dto.Id} not found.");
 				}
 
 				_mapper.Map(dto, updatedItem);

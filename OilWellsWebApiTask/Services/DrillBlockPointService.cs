@@ -36,17 +36,17 @@ namespace OilWellsWebApiTask.Service
 			try
 			{
 				var list = _uow.DrillBlocks.GetAll(item => item.DrillBlockPoints);
-				var drillBlocks = list.Any(item => item.Id == dto.DrillBlockId);
+				var drillBlocks = await list.FirstOrDefaultAsync(item => item.Id == dto.DrillBlockId);
 
 				if (drillBlocks == null)
 				{
 					throw new Exception($"Drill block with id = {dto.DrillBlockId} not found.");
 				}
 
-				//if (drillBlockPointList.Any(item => item.Sequence == dto.Sequence))
-				//{
-				//	throw new Exception($"Item with sequence = {dto.Sequence} already exists.");
-				//}
+				if (drillBlocks.DrillBlockPoints.Any(item => item.Sequence == dto.Sequence))
+				{
+					throw new Exception($"Item with sequence = {dto.Sequence} already exists.");
+				}
 
 				var addedItem = _mapper.Map<DrillBlockPoint>(dto);
 
@@ -104,16 +104,15 @@ namespace OilWellsWebApiTask.Service
 					throw new Exception($"Item with id = {dto.Id} not found.");
 				}
 
-				var list = _uow.DrillBlockPoints.Get(item => item.DrillBlockId == dto.DrillBlockId,
-												 list => list.OrderBy(dbp => dbp.Sequence),
-												 "DrillBlock");
+				var list = _uow.DrillBlocks.GetAll(item => item.DrillBlockPoints);
+				var drillBlocks = await list.FirstOrDefaultAsync(item => item.Id == dto.DrillBlockId);
 
-				if (list == null)
+				if (drillBlocks == null)
 				{
-					throw new Exception($"Item DrillBlock with id = {dto.DrillBlockId} not found.");
+					throw new Exception($"Drill block with id = {dto.DrillBlockId} not found.");
 				}
 
-				if (list.Any(item => item.Sequence == dto.Sequence))
+				if (drillBlocks.DrillBlockPoints.Any(item => item.Sequence == dto.Sequence))
 				{
 					throw new Exception($"Item with sequence = {dto.Sequence} already exists.");
 				}

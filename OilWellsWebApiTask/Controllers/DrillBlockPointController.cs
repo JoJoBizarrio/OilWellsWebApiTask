@@ -24,7 +24,14 @@ namespace OilWellsWebApiTask.Controllers
 		[HttpPost("Add")]
 		public async Task<JsonResult> AddAsync(AddDrillBlockPointDto dto)
 		{
-			return Json(Ok(await _drillBlockPointService.AddAsync(dto)));
+			var response = await _drillBlockPointService.AddAsync(dto);
+
+			if (!response.IsSuccess)
+			{
+				return Json(NotFound(response));
+			}
+
+			return Json(Ok(response));
 		}
 
 		[HttpDelete("Delete/{id:int}")]

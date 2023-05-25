@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using OilWellsWebApiTask.Data;
 using OilWellsWebApiTask.Models;
 using OilWellsWebApiTask.Models.Dtos;
@@ -35,12 +36,10 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var holesList = _uow.HolePoints.Get(
-					item => item.HoleId == dto.HoleId,
-					null,
-					"HoleId");
+				var holesList = await _uow.Holes.GetAllAsync();
+				var hole = holesList.Where(item => item.Id == dto.HoleId);
 
-				if (holesList == null)
+				if (hole == null)
 				{
 					throw new Exception($"Hole with id = {dto.HoleId} not found.");
 				}
@@ -96,18 +95,19 @@ namespace OilWellsWebApiTask.Service
 
 			try
 			{
-				var holesList = _uow.HolePoints.Get(item => item.HoleId == dto.HoleId, null, "HoleId");
-
-				if (holesList == null)
-				{
-					throw new Exception($"Hole with id = {dto.HoleId} not found.");
-				}
-
-				var updatedItem = holesList.FirstOrDefault(item => item.Id == dto.Id);
+				var updatedItem = await _uow.HolePoints.GetByIdAsync(dto.Id);
 
 				if (updatedItem == null)
 				{
 					throw new Exception($"Item with id = {dto.Id} not found.");
+				}
+
+				var holesList = await _uow.Holes.GetAllAsync();
+				var hole = holesList.Where(item => item.Id == dto.HoleId);
+
+				if (hole == null)
+				{
+					throw new Exception($"Hole with id = {dto.HoleId} not found.");
 				}
 
 				_mapper.Map(dto, updatedItem);
